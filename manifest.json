@@ -1,0 +1,16 @@
+{
+  "name": "Zenith Study Vault",
+  "short_name": "StudyVault",
+  "description": "Study-focused countdown OS powered by TypeSafe Jev System 1",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0B0D11",
+  "theme_color": "#F4F1EA",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2318181B'/><text x='50' y='65' font-size='50' font-family='sans-serif' text-anchor='middle' fill='%23A3E635'>⚡</text></svg>",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
