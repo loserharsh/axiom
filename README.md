@@ -1,4 +1,4 @@
-# Zenith Study & Deathline Tracker (Powered by TypeSafe Jev)
+#  Study & Deathline Tracker (Powered by TypeSafe Jev)
 
 A specialized study-focused operating system and countdown planner tailored for serious competitive exams (**JEE Main & Advanced**, **NEET UG**, and **Class 12 Boards**), designed strictly around 4 user-provided UI paradigms and driven by **TypeSafe AI's Jev** System 1 decision engine.
 
