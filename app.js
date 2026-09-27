@@ -1,4 +1,4 @@
-// Zenith Study Vault & Deathline Tracker - Application Core
+// Axiom Study Vault & Deathline Tracker - Application Core
 // Responsive Mobile/PWA Engine, iOS Slide-down Focus Lockscreen with Timer,
 // Syllabus Management, and Real TypeSafe Jev System 1 Decision Integration
 
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const parsed = JSON.parse(val);
       return parsed !== null && parsed !== undefined ? parsed : fallback;
     } catch (e) {
-      console.warn(`[StudyVault] Safely recovering corrupted localStorage key '${key}':`, e);
+      console.warn(`[Axiom] Safely recovering corrupted localStorage key '${key}':`, e);
       return fallback;
     }
   }
@@ -112,23 +112,23 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       bindEvents();
     } catch (e) {
-      console.error("[StudyVault] bindEvents error:", e);
+      console.error("[Axiom] bindEvents error:", e);
     }
     try {
       renderCurrentView();
     } catch (e) {
-      console.error("[StudyVault] renderCurrentView error:", e);
+      console.error("[Axiom] renderCurrentView error:", e);
     }
     try {
       updateRealtimeClock();
     } catch (e) {
-      console.error("[StudyVault] updateRealtimeClock error:", e);
+      console.error("[Axiom] updateRealtimeClock error:", e);
     }
     setInterval(() => {
       try {
         updateRealtimeClock();
       } catch (e) {
-        console.error("[StudyVault] clock tick error:", e);
+        console.error("[Axiom] clock tick error:", e);
       }
     }, 1000);
 

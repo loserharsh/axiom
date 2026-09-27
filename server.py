@@ -67,7 +67,7 @@ class StudyAppHandler(http.server.SimpleHTTPRequestHandler):
                     headers={
                         "Authorization": auth_header,
                         "Content-Type": "application/json",
-                        "User-Agent": "StudyVault/1.0"
+                        "User-Agent": "Axiom/1.0"
                     },
                     method="POST"
                 )
@@ -127,7 +127,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     print("==================================================", flush=True)
-    print(f"  Zenith Study & Deathline Tracker (Dual-Stack)", flush=True)
+    print(f"  Axiom Study & Deathline Tracker (Dual-Stack)", flush=True)
     print(f"  URL (IPv4):  http://127.0.0.1:{PORT}", flush=True)
     print(f"  URL (Local): http://localhost:{PORT}", flush=True)
     print(f"  TypeSafe Jev API proxy enabled at: /api/systemone", flush=True)

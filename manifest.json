@@ -1,6 +1,6 @@
 {
-  "name": "Zenith Study Vault",
-  "short_name": "StudyVault",
+  "name": "Axiom Study Vault",
+  "short_name": "Axiom",
   "description": "Study-focused countdown OS powered by TypeSafe Jev System 1",
   "start_url": "/",
   "display": "standalone",

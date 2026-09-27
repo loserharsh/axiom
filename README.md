@@ -1,4 +1,4 @@
-#  Study & Deathline Tracker (Powered by TypeSafe Jev)
+# Axiom - Study & Deathline Tracker (Powered by TypeSafe Jev)
 
 A specialized study-focused operating system and countdown planner tailored for serious competitive exams (**JEE Main & Advanced**, **NEET UG**, and **Class 12 Boards**), designed strictly around 4 user-provided UI paradigms and driven by **TypeSafe AI's Jev** System 1 decision engine.
 
@@ -38,7 +38,6 @@ Unlike generative LLMs that take 3–5 seconds streaming text, **Jev** evaluates
 ### Option 1: Run with Python Server (Recommended)
 In PowerShell or Terminal:
 ```powershell
-cd C:\Users\harshw\.gemini\antigravity\scratch\study-tracker
 python server.py
 ```
 Open **[http://localhost:8080](http://localhost:8080)** in your browser.
