@@ -1639,3 +1639,185 @@ h1, h2, h3, .date-large, .lock-date-num, .greeting-title, .modal-title, .cal-her
   transform: translateX(-50%) translateY(0);
   opacity: 1;
 }
+
+/* =========================================================================
+   THEME SWITCHING: BRIGHT (WARM MINIMALIST) VS DARK (SLEEK JET BLACK)
+   ========================================================================= */
+
+.theme-icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.theme-icon-btn:hover {
+  transform: scale(1.08);
+  background: rgba(0, 0, 0, 0.09);
+}
+
+/* --- DARK THEME OVERRIDES --- */
+body.theme-dark {
+  background: #060709 !important;
+  color: #F4F4F5;
+}
+
+body.theme-dark .app-container {
+  --bg-home: #0D0F12;
+  --bg-card: #16181F;
+  --text-main: #F4F4F5;
+  --text-muted: #94A3B8;
+  background: #0D0F12 !important;
+  color: #F4F4F5 !important;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.95), 0 0 0 12px #181B22;
+}
+
+body.theme-dark .ios-status-bar {
+  color: #F4F4F5;
+}
+
+body.theme-dark .home-view {
+  background: #0D0F12 !important;
+}
+
+body.theme-dark .greeting-title {
+  color: #F4F4F5 !important;
+}
+
+body.theme-dark .greeting-subtitle {
+  color: #94A3B8 !important;
+}
+
+body.theme-dark .date-large {
+  color: #F4F4F5 !important;
+}
+
+body.theme-dark .date-sub-info {
+  color: #94A3B8 !important;
+}
+
+body.theme-dark .date-time-col,
+body.theme-dark .clock-display-wrap {
+  color: #F4F4F5 !important;
+}
+
+body.theme-dark .task-filter-pill {
+  background: #16181F !important;
+  color: #94A3B8 !important;
+  border-color: #27272A !important;
+}
+
+body.theme-dark .task-filter-pill.active {
+  background: #38BDF8 !important;
+  color: #0F172A !important;
+}
+
+body.theme-dark .task-time-badge {
+  background: #16181F !important;
+  color: #38BDF8 !important;
+  border-color: #27272A !important;
+}
+
+body.theme-dark .habit-view,
+body.theme-dark .syllabus-view {
+  background: #0D0F12 !important;
+  color: #F4F4F5 !important;
+}
+
+body.theme-dark .habit-card,
+body.theme-dark .habit-row-card {
+  background: #16181F !important;
+  color: #F4F4F5 !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+body.theme-dark .habit-streak-count {
+  background: #1E293B !important;
+  color: #38BDF8 !important;
+}
+
+body.theme-dark .heatmap-cell {
+  background: #27272A !important;
+}
+
+body.theme-dark .syllabus-header-card,
+body.theme-dark .chapter-card {
+  background: #16181F !important;
+  color: #F4F4F5 !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+body.theme-dark .bottom-nav-bar {
+  background: rgba(18, 20, 26, 0.94) !important;
+  border-top-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+body.theme-dark .nav-item {
+  color: #71717A !important;
+}
+
+body.theme-dark .nav-item.active {
+  color: #38BDF8 !important;
+}
+
+body.theme-dark .modal-sheet {
+  background: #16181F !important;
+  color: #F4F4F5 !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+body.theme-dark .modal-title {
+  color: #F4F4F5 !important;
+}
+
+body.theme-dark .modal-subtitle {
+  color: #94A3B8 !important;
+}
+
+body.theme-dark .input-field {
+  background: #0D0F12 !important;
+  color: #F4F4F5 !important;
+  border-color: #27272A !important;
+}
+
+body.theme-dark .secondary-modal-btn {
+  background: #27272A !important;
+  color: #F4F4F5 !important;
+}
+
+body.theme-dark .theme-icon-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #FDE047;
+}
+
+body.theme-dark .theme-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+body.theme-dark .avatar-circle {
+  border-color: #27272A !important;
+}
+
+/* --- BRIGHT / LIGHT THEME ADJUSTMENTS --- */
+body.theme-bright {
+  background: #EBE7DF;
+  color: #18181B;
+}
+
+body.theme-bright .app-container {
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.25), 0 0 0 12px #D8D4CC;
+}
+
+body.theme-bright .theme-icon-btn {
+  color: #D97706;
+}

@@ -32,65 +32,64 @@ document.addEventListener('DOMContentLoaded', () => {
     return catalog[key] || catalog.jee || fallbackSyllabus.jee;
   }
 
-  // --- APPLICATION STATE ---
-  const defaultHabits = [
+  // --- APPLICATION STATE (STUDENT DEFAULTS) ---
+  const defaultTasks = [
     {
-      id: 'h1',
-      title: 'Physics PYQ & Concept Drill',
-      subject: 'physics',
-      streak: 0,
-      history: Array(49).fill(0),
-      checkedToday: false
+      id: 't1',
+      title: 'Rotational Dynamics & Moment of Inertia',
+      subject: 'Physics Mechanics',
+      time: '09:00 - 11:30',
+      theme: 'burgundy',
+      location: 'Study Desk',
+      avatarText: 'PHY',
+      done: true
     },
     {
-      id: 'h2',
-      title: 'Chemistry Reactions & Problem Sets',
-      subject: 'chemistry',
-      streak: 0,
-      history: Array(49).fill(0),
-      checkedToday: false
+      id: 't2',
+      title: 'Thermodynamics & Equilibrium Problems',
+      subject: 'Physical Chemistry',
+      time: '13:00 - 15:30',
+      theme: 'terracotta',
+      location: 'Study Desk',
+      avatarText: 'CHM',
+      done: false
     },
     {
-      id: 'h3',
-      title: 'Mathematics Calculus / Biology NCERT',
-      subject: 'mathematics',
-      streak: 0,
-      history: Array(49).fill(0),
-      checkedToday: false
-    },
-    {
-      id: 'h4',
-      title: 'Daily Mock Test & Error Analysis',
-      subject: 'test',
-      streak: 0,
-      history: Array(49).fill(0),
-      checkedToday: false
+      id: 't3',
+      title: 'Calculus: Integration & Area Under Curves',
+      subject: 'Mathematics',
+      time: '16:30 - 19:00',
+      theme: 'indigo',
+      location: 'Library',
+      avatarText: 'MTH',
+      done: false
     }
   ];
 
-  const defaultJev = {
-    readiness_score: 0,
-    deadline_risk_prob: 0.0,
-    priority_subject: 'physics',
-    burnout_hazard: 'Not yet evaluated',
-    daily_strategy: 'Complete calibration & mark first chapter',
-    latency_ms: 0,
-    last_updated: null
+  const defaultChapterStatuses = {
+    'jee_phy_1': 'green',
+    'jee_phy_2': 'green',
+    'jee_phy_3': 'yellow',
+    'jee_phy_4': 'red',
+    'jee_chem_1': 'green',
+    'jee_chem_2': 'yellow',
+    'jee_chem_3': 'green',
+    'jee_math_1': 'green',
+    'jee_math_2': 'yellow',
+    'jee_math_3': 'red'
   };
 
   const state = {
-    activeView: 'home', // 'home' | 'syllabus' | 'streak' | 'stats'
-    isCalibrated: localStorage.getItem('sv_is_calibrated') === 'true',
+    activeView: 'home', // 'home' | 'syllabus' | 'stats'
+    isCalibrated: localStorage.getItem('sv_is_calibrated') !== null ? localStorage.getItem('sv_is_calibrated') === 'true' : true,
     userName: localStorage.getItem('sv_username') || 'Student',
     examKey: localStorage.getItem('sv_exam') || 'jee',
     startDate: localStorage.getItem('sv_start_date') || getOffsetDate(-30),
     deadlineDate: localStorage.getItem('sv_deadline_date') || getOffsetDate(150),
-    apiKey: localStorage.getItem('sv_typesafe_key') || '',
-    chapterStatuses: safeJsonParse('sv_chapter_statuses', {}),
-    studyHoursToday: parseFloat(localStorage.getItem('sv_study_hours') || '0.0'),
-    habits: safeJsonParse('sv_habits', defaultHabits),
-    studyTasks: safeJsonParse('sv_tasks', []),
-    jevAnalysis: safeJsonParse('sv_jev_analysis', defaultJev)
+    theme: localStorage.getItem('sv_theme') || 'bright',
+    chapterStatuses: safeJsonParse('sv_chapter_statuses', defaultChapterStatuses),
+    studyHoursToday: parseFloat(localStorage.getItem('sv_study_hours') || '3.5'),
+    studyTasks: safeJsonParse('sv_tasks', defaultTasks)
   };
 
   // Focus Mode Stopwatch state
@@ -103,12 +102,47 @@ document.addEventListener('DOMContentLoaded', () => {
   const navItems = document.querySelectorAll('.nav-item');
   const focusOverlay = document.getElementById('focus-lockscreen-overlay');
   const calibrationModal = document.getElementById('calibration-modal');
-  const apiKeyModal = document.getElementById('api-key-modal');
   const addTaskModal = document.getElementById('add-task-modal');
   const toastMsg = document.getElementById('toast-msg');
 
+  // --- THEME ENGINE ---
+  function applyTheme(theme) {
+    state.theme = theme || state.theme || 'bright';
+    localStorage.setItem('sv_theme', state.theme);
+
+    if (state.theme === 'dark') {
+      document.body.classList.remove('theme-bright');
+      document.body.classList.add('theme-dark');
+    } else {
+      document.body.classList.remove('theme-dark');
+      document.body.classList.add('theme-bright');
+    }
+
+    const glyphs = document.querySelectorAll('.theme-icon-glyph');
+    glyphs.forEach(g => {
+      g.textContent = state.theme === 'dark' ? '☀️' : '🌙';
+    });
+
+    const shellToggle = document.getElementById('shell-theme-toggle');
+    if (shellToggle) {
+      shellToggle.innerHTML = `<span class="theme-icon-glyph">${state.theme === 'dark' ? '☀️' : '🌙'}</span> <span class="theme-label-text">${state.theme === 'dark' ? 'Bright' : 'Dark'}</span>`;
+    }
+  }
+
+  function toggleTheme() {
+    const newTheme = state.theme === 'dark' ? 'bright' : 'dark';
+    applyTheme(newTheme);
+    showToast(`Switched to ${newTheme === 'dark' ? 'Dark' : 'Bright'} mode!`, newTheme === 'dark' ? '🌙' : '☀️');
+    renderCurrentView();
+  }
+
   // --- INITIALIZATION ---
   function init() {
+    try {
+      applyTheme(state.theme);
+    } catch (e) {
+      console.error("[Axiom] applyTheme error:", e);
+    }
     try {
       bindEvents();
     } catch (e) {
@@ -146,12 +180,10 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('sv_exam', state.examKey);
     localStorage.setItem('sv_start_date', state.startDate);
     localStorage.setItem('sv_deadline_date', state.deadlineDate);
+    localStorage.setItem('sv_theme', state.theme);
     localStorage.setItem('sv_chapter_statuses', JSON.stringify(state.chapterStatuses));
     localStorage.setItem('sv_study_hours', state.studyHoursToday.toString());
-    localStorage.setItem('sv_habits', JSON.stringify(state.habits));
     localStorage.setItem('sv_tasks', JSON.stringify(state.studyTasks));
-    localStorage.setItem('sv_jev_analysis', JSON.stringify(state.jevAnalysis));
-    localStorage.setItem('sv_typesafe_key', state.apiKey);
   }
 
   function showToast(text, icon = '✓') {
@@ -384,10 +416,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (viewName === 'stats') {
       appContainer.classList.add('dark-theme-active');
-      appContainer.style.background = 'var(--bg-dark)';
+      if (state.theme !== 'dark') {
+        appContainer.style.background = 'var(--bg-dark)';
+      }
     } else {
       appContainer.classList.remove('dark-theme-active');
-      appContainer.style.background = 'var(--bg-home)';
+      if (state.theme !== 'dark') {
+        appContainer.style.background = 'var(--bg-home)';
+      } else {
+        appContainer.style.background = '';
+      }
     }
 
     renderCurrentView();
@@ -400,9 +438,6 @@ document.addEventListener('DOMContentLoaded', () => {
         break;
       case 'syllabus':
         renderSyllabusView();
-        break;
-      case 'streak':
-        renderStreakView();
         break;
       case 'stats':
         renderStatsView();
@@ -435,6 +470,9 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="greeting-subtitle" id="home-greeting-sub">${greetingData.subtitle} · Deathline in ${totalDaysRemaining}d</div>
           </div>
           <div class="home-header-actions">
+            <button class="theme-icon-btn" onclick="app.toggleTheme()" title="Toggle Theme (Bright / Dark)" style="margin-right: 4px;">
+              <span class="theme-icon-glyph">${state.theme === 'dark' ? '☀️' : '🌙'}</span>
+            </button>
             <button class="calibrate-vault-pill" onclick="app.openCalibrationModal()" title="Set Calibrate">
               <span>⚡</span>
               <span>Calibrate</span>
@@ -454,7 +492,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <span>Prep Vault Uncalibrated</span>
               </div>
               <div class="cal-hero-sub">
-                Set your target exam, starting baseline, deathline & Jev API key to start System 1 scoring.
+                Set your target exam, starting baseline, and deathline to calibrate your preparation vault.
               </div>
             </div>
             <button class="cal-hero-btn" onclick="app.openCalibrationModal()">Set Calibrate</button>
@@ -711,104 +749,39 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // =========================================================================
-  // VIEW 3: STREAK & HABIT GRID (Image 2 Style - Streak Part Only)
-  // =========================================================================
-  function renderStreakView() {
-    const completedTodayCount = state.habits.filter(h => h.checkedToday).length;
-
-    viewContent.innerHTML = `
-      <div class="streak-view">
-        <div style="margin-bottom:18px;">
-          <h2 style="font-size:22px; font-weight:800; letter-spacing:-0.5px;">My Study Streaks</h2>
-          <div style="font-size:13px; color:var(--text-muted); margin-top:2px;">
-            Build routines for ${getSyllabus(state.examKey).name.split(' ')[0]}
-          </div>
-        </div>
-
-        <!-- Top Stat Counter Box (Image 2 style) -->
-        <div class="streak-top-stats">
-          <div class="streak-stat-box">
-            <div class="streak-stat-num">${state.habits.length}</div>
-            <div class="streak-stat-label">Total Routines</div>
-          </div>
-          <div class="streak-stat-box">
-            <div class="streak-stat-num" style="color:#10B981;">${completedTodayCount}</div>
-            <div class="streak-stat-label">Completed Today</div>
-          </div>
-        </div>
-
-        <!-- Habit Streak Cards with Heatmap Matrices -->
-        ${state.habits.map((habit, hIdx) => `
-          <div class="habit-streak-card">
-            <div class="habit-card-header">
-              <div class="habit-title-box">
-                <span>⚡</span>
-                <span>${habit.title}</span>
-              </div>
-              <div class="habit-streak-count">🔥 ${habit.streak} Days</div>
-            </div>
-
-            <!-- 7x7 Heatmap Matrix -->
-            <div class="heatmap-grid-container">
-              <div class="heatmap-matrix">
-                ${habit.history.map(level => `
-                  <div class="heatmap-cell ${level > 0 ? 'level-' + level : ''}" title="Intensity: Level ${level}"></div>
-                `).join('')}
-              </div>
-            </div>
-
-            <div class="habit-action-row">
-              <div class="habit-days-row">
-                <span class="active-day">Su</span>
-                <span class="active-day">Mo</span>
-                <span class="active-day">Tu</span>
-                <span class="active-day">We</span>
-                <span class="active-day">Th</span>
-                <span>Fr</span>
-                <span>Sa</span>
-              </div>
-              <button class="checkin-btn ${habit.checkedToday ? 'checked' : ''}" data-index="${hIdx}">
-                <span>${habit.checkedToday ? '✓ Done' : '+ Check in'}</span>
-              </button>
-            </div>
-          </div>
-        `).join('')}
-      </div>
-    `;
-
-    // Habit check-in trigger
-    document.querySelectorAll('.checkin-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const idx = btn.dataset.index;
-        const habit = state.habits[idx];
-        habit.checkedToday = !habit.checkedToday;
-
-        if (habit.checkedToday) {
-          habit.streak += 1;
-          habit.history[habit.history.length - 1] = 4;
-          showToast(`Checked in: ${habit.title}! Streak: ${habit.streak}d 🔥`);
-        } else {
-          habit.streak = Math.max(0, habit.streak - 1);
-          habit.history[habit.history.length - 1] = 0;
-          showToast(`Check-in undone`);
-        }
-
-        saveState();
-        renderStreakView();
-      });
-    });
-  }
-
-  // =========================================================================
-  // VIEW 4: STATISTICS & JEV INTELLIGENCE (Image 3 Style - Dark Theme)
+  // VIEW 3: STATISTICS & PREPARATION METRICS (Image 3 Style - Dark Theme)
   // =========================================================================
   function renderStatsView() {
     const counts = getChapterCounts();
-    const readiness = state.jevAnalysis?.readiness_score || (counts.total > 0 ? Math.round((counts.green / counts.total) * 100) : 0);
-    const deadlineRisk = Math.round((state.jevAnalysis?.deadline_risk_prob || 0.0) * 100);
+    const readiness = counts.total > 0 ? Math.round(((counts.green * 1.0 + counts.yellow * 0.45) / counts.total) * 100) : 0;
+    const remainingDays = getDaysBetween(new Date(), new Date(state.deadlineDate));
 
     const currentSyllabus = getSyllabus(state.examKey);
     const subjects = currentSyllabus.subjects;
+
+    let worstSubject = 'Physics';
+    let maxBacklog = -1;
+    (subjects || []).forEach(sub => {
+      let subBacklog = 0;
+      (sub.chapters || []).forEach(ch => {
+        const st = state.chapterStatuses[ch.id];
+        if (st === 'red') subBacklog += 2;
+        else if (st === 'yellow') subBacklog += 1;
+      });
+      if (subBacklog > maxBacklog) {
+        maxBacklog = subBacklog;
+        worstSubject = sub.name.split(' ')[0];
+      }
+    });
+
+    let burnout = 'Healthy pace';
+    if (state.studyHoursToday >= 9) burnout = 'High intensity';
+    else if (state.studyHoursToday >= 6) burnout = 'Moderate focus';
+
+    let strategy = 'Tackle Red Backlog';
+    if (counts.red === 0 && counts.yellow > 4) strategy = 'Rapid PYQ Revision';
+    else if (remainingDays < 25) strategy = 'Mock Test Pacing';
+    else if (counts.green > counts.total * 0.65) strategy = 'Formula Consolidation';
 
     const subBreakdowns = subjects.map((sub, i) => {
       const subChaps = sub.chapters;
@@ -826,9 +799,8 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="stats-view">
         <div class="stats-header-bar">
           <div class="stats-title">Intelligence & Statistics</div>
-          <button class="run-jev-pill" id="run-jev-btn" title="Run TypeSafe Jev System 1 Analysis">
-            <span>⚡</span>
-            <span>Run Jev Now</span>
+          <button class="theme-icon-btn" onclick="app.toggleTheme()" title="Toggle Theme (Bright / Dark)">
+            <span class="theme-icon-glyph">${state.theme === 'dark' ? '☀️' : '🌙'}</span>
           </button>
         </div>
 
@@ -843,7 +815,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <span>🟢 ${counts.green} Ready</span>
             <span>🟡 ${counts.yellow} Revise</span>
             <span>🔴 ${counts.red} Backlog</span>
-            <span>⏳ ${getDaysBetween(new Date(), new Date(state.deadlineDate))}d left</span>
+            <span>⏳ ${remainingDays}d left</span>
           </div>
         </div>
 
@@ -930,47 +902,45 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
         </div>
 
-        <!-- Real Jev Decision Engine Breakdown -->
+        <!-- Preparation Diagnostics & Telemetry Breakdown -->
         <div class="jev-card">
           <div class="jev-header-row">
             <div class="jev-badge">
               <span>●</span>
-              <span>TypeSafe Jev System 1 Engine</span>
+              <span>Preparation Diagnostics & Metrics</span>
             </div>
-            <div class="jev-latency">${state.jevAnalysis?.latency_ms ? state.jevAnalysis.latency_ms + 'ms' : 'Ready'}</div>
+            <div class="jev-latency">Live Telemetry</div>
           </div>
 
           <div class="jev-results-grid">
             <div class="jev-result-row">
-              <span class="jev-q-name">Deadline Failure Risk (Noul):</span>
-              <span class="jev-q-val" style="color:${deadlineRisk > 50 ? '#EF4444' : '#10B981'};">
-                ${deadlineRisk}% Prob
-              </span>
-            </div>
-            <div class="jev-result-row">
-              <span class="jev-q-name">Immediate Subject Focus (Choice):</span>
-              <span class="jev-q-val" style="text-transform:capitalize;">
-                ${state.jevAnalysis?.priority_subject || 'Physics'}
-              </span>
-            </div>
-            <div class="jev-result-row">
-              <span class="jev-q-name">Burnout Hazard (Score):</span>
-              <span class="jev-q-val">
-                ${state.jevAnalysis?.burnout_hazard || 'Healthy pace'}
-              </span>
-            </div>
-            <div class="jev-result-row">
-              <span class="jev-q-name">Recommended Tactical Action:</span>
+              <span class="jev-q-name">Syllabus Coverage:</span>
               <span class="jev-q-val" style="color:#38BDF8;">
-                ${state.jevAnalysis?.daily_strategy || 'Tackle Red Backlog'}
+                ${counts.total > 0 ? Math.round(((counts.green + counts.yellow) / counts.total) * 100) : 0}% Covered
+              </span>
+            </div>
+            <div class="jev-result-row">
+              <span class="jev-q-name">Priority Remedial Focus:</span>
+              <span class="jev-q-val" style="text-transform:capitalize;">
+                ${worstSubject}
+              </span>
+            </div>
+            <div class="jev-result-row">
+              <span class="jev-q-name">Pacing Status:</span>
+              <span class="jev-q-val">
+                ${burnout}
+              </span>
+            </div>
+            <div class="jev-result-row">
+              <span class="jev-q-name">Tactical Next Step:</span>
+              <span class="jev-q-val" style="color:#A3E635;">
+                ${strategy}
               </span>
             </div>
           </div>
         </div>
       </div>
     `;
-
-    document.getElementById('run-jev-btn')?.addEventListener('click', runJevCalculation);
   }
 
   // =========================================================================
@@ -1159,151 +1129,30 @@ document.addEventListener('DOMContentLoaded', () => {
     return Math.round(diffMs / (1000 * 60 * 60 * 24));
   }
 
-  // =========================================================================
-  // REAL TYPESAFE JEV API INTEGRATION
-  // =========================================================================
-  async function runJevCalculation() {
-    if (!state.apiKey) {
-      openApiKeyModal();
-      return;
-    }
-
-    const counts = getChapterCounts();
-    const remainingDays = getDaysBetween(new Date(), new Date(state.deadlineDate));
-    const currentSyllabus = getSyllabus(state.examKey);
-
-    showToast('Sending state to TypeSafe Jev System 1...', '⚡');
-
-    const statePayload = `Student Target: ${currentSyllabus.name}. Total Chapters: ${counts.total}. Mastered (Green): ${counts.green}. Revision Needed (Yellow): ${counts.yellow}. Weak/Unprepared (Red): ${counts.red}. Untouched (Gray): ${counts.gray}. Days remaining until exam deathline: ${remainingDays} days. Average daily study time: ${state.studyHoursToday.toFixed(1)} hours.`;
-
-    const requestBody = {
-      model: "jev-latest",
-      state: statePayload,
-      questions: {
-        "readiness_score": {
-          "type": "score",
-          "instructions": "Rate the student's probability of securing a top competitive rank given remaining red and yellow chapters.",
-          "criteria": ["unprepared", "basic coverage", "moderately ready", "strong competitive rank", "exceptional / 99th percentile"]
-        },
-        "deadline_risk": {
-          "type": "noul",
-          "instructions": "Given the days remaining and red backlog chapters, is the student at high risk of running out of preparation time?"
-        },
-        "priority_subject": {
-          "type": "choice",
-          "instructions": "Which subject domain needs immediate remedial focus today?",
-          "criteria": {
-            "physics": "Mechanics, Electromagnetism, or Optics backlog",
-            "chemistry": "Organic reaction mechanisms or Physical stoichiometry",
-            "mathematics": "Calculus, 3D Geometry, or Algebra practice",
-            "biology": "Genetics, Physiology, or Ecology memorization"
-          }
-        },
-        "burnout_hazard": {
-          "type": "score",
-          "instructions": "Assess if student's pacing shows fatigue or unsustainable cramming.",
-          "criteria": ["healthy pace", "moderate fatigue", "high burnout hazard"]
-        },
-        "daily_strategy": {
-          "type": "choice",
-          "instructions": "What tactical action should dominate today's schedule?",
-          "criteria": {
-            "tackle_red_backlog": "Cover unmastered red chapters first",
-            "rapid_yellow_pyqs": "Solve 50 PYQs on yellow revision chapters",
-            "mock_speed_test": "Take a 3-hour timed exam simulation",
-            "formula_consolidation": "Review formula sheets and short notes"
-          }
-        }
-      }
-    };
-
-    const startTime = performance.now();
-
-    try {
-      const apiUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-        ? "/api/systemone"
-        : "https://api.typesafe.ai/v1/systemone";
-
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${state.apiKey.trim()}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(requestBody)
-      });
-
-      const latencyMs = Math.round(performance.now() - startTime);
-
-      if (!response.ok) {
-        const errText = await response.text();
-        throw new Error(`API Error ${response.status}: ${errText}`);
-      }
-
-      const data = await response.json();
-      const answers = data.answers || {};
-
-      let mappedScore = 50;
-      if (answers.readiness_score) {
-        const scoreVal = answers.readiness_score.score || 2.0;
-        mappedScore = Math.min(100, Math.round((scoreVal / 4) * 100));
-      }
-
-      const riskProb = answers.deadline_risk?.noul ?? 0.25;
-      const topSubject = answers.priority_subject?.choice || 'physics';
-      const burnout = answers.burnout_hazard?.legend?.[Math.round(answers.burnout_hazard.score || 0)] || 'Healthy pace';
-      const strategy = answers.daily_strategy?.choice ? answers.daily_strategy.choice.replace(/_/g, ' ') : 'Tackle Red Backlog';
-
-      state.jevAnalysis = {
-        readiness_score: mappedScore,
-        deadline_risk_prob: riskProb,
-        priority_subject: topSubject,
-        burnout_hazard: burnout,
-        daily_strategy: strategy,
-        latency_ms: latencyMs,
-        last_updated: new Date().toISOString()
-      };
-
-      saveState();
-      showToast(`Jev evaluated in ${latencyMs}ms! Score: ${mappedScore}%`, '🚀');
-      if (state.activeView === 'stats') {
-        renderStatsView();
-      }
-    } catch (err) {
-      console.error("TypeSafe Jev API call failed:", err);
-      showToast(`Jev API: ${err.message}`, '⚠️');
-    }
-  }
-
   // --- MODAL CONTROLS ---
   function openCalibrationModal() {
-    document.getElementById('cal-name-input').value = state.userName || 'Student';
-    document.getElementById('cal-exam-select').value = state.examKey;
-    document.getElementById('cal-start-date').value = state.startDate;
-    document.getElementById('cal-deadline-date').value = state.deadlineDate;
-    document.getElementById('cal-api-key').value = state.apiKey;
-    calibrationModal.classList.add('open');
+    const nameEl = document.getElementById('cal-name-input');
+    if (nameEl) nameEl.value = state.userName || 'Student';
+    const examEl = document.getElementById('cal-exam-select');
+    if (examEl) examEl.value = state.examKey;
+    const startEl = document.getElementById('cal-start-date');
+    if (startEl) startEl.value = state.startDate;
+    const deadEl = document.getElementById('cal-deadline-date');
+    if (deadEl) deadEl.value = state.deadlineDate;
+
+    if (calibrationModal) calibrationModal.classList.add('open');
   }
 
   function closeCalibrationModal() {
-    calibrationModal.classList.remove('open');
-  }
-
-  function openApiKeyModal() {
-    document.getElementById('api-key-input').value = state.apiKey;
-    apiKeyModal.classList.add('open');
-  }
-
-  function closeApiKeyModal() {
-    apiKeyModal.classList.remove('open');
+    if (calibrationModal) calibrationModal.classList.remove('open');
   }
 
   function openAddTaskModal() {
-    addTaskModal.classList.add('open');
+    if (addTaskModal) addTaskModal.classList.add('open');
   }
 
   function closeAddTaskModal() {
-    addTaskModal.classList.remove('open');
+    if (addTaskModal) addTaskModal.classList.remove('open');
   }
 
   // --- EVENT BINDINGS ---
@@ -1341,47 +1190,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Save Calibration
     document.getElementById('save-calibration-btn')?.addEventListener('click', () => {
-      const nameVal = document.getElementById('cal-name-input').value.trim();
+      const nameVal = document.getElementById('cal-name-input')?.value.trim();
       state.userName = nameVal || 'Student';
-      state.examKey = document.getElementById('cal-exam-select').value;
-      state.startDate = document.getElementById('cal-start-date').value || state.startDate;
-      state.deadlineDate = document.getElementById('cal-deadline-date').value || state.deadlineDate;
-      const keyVal = document.getElementById('cal-api-key').value.trim();
-      if (keyVal) state.apiKey = keyVal;
+      const examSelect = document.getElementById('cal-exam-select');
+      if (examSelect) state.examKey = examSelect.value;
+      const startInput = document.getElementById('cal-start-date');
+      if (startInput && startInput.value) state.startDate = startInput.value;
+      const deadInput = document.getElementById('cal-deadline-date');
+      if (deadInput && deadInput.value) state.deadlineDate = deadInput.value;
 
       state.isCalibrated = true;
       saveState();
       closeCalibrationModal();
       showToast(`Vault calibrated for ${state.userName}!`, '⚡');
       renderCurrentView();
-
-      if (state.apiKey) {
-        runJevCalculation();
-      }
     });
-
-    // Save API Key
-    document.getElementById('save-api-key-btn')?.addEventListener('click', () => {
-      const val = document.getElementById('api-key-input').value.trim();
-      if (!val) {
-        alert('Please enter your TypeSafe API Key.');
-        return;
-      }
-      state.apiKey = val;
-      saveState();
-      closeApiKeyModal();
-      showToast('TypeSafe API Key saved!', '🔑');
-      runJevCalculation();
-    });
-
-    document.getElementById('cancel-api-key-btn')?.addEventListener('click', closeApiKeyModal);
 
     // Save Task
     document.getElementById('save-task-btn')?.addEventListener('click', () => {
-      const title = document.getElementById('task-title-input').value.trim();
-      const subject = document.getElementById('task-subject-input').value.trim() || 'General';
-      const time = document.getElementById('task-time-input').value.trim() || '10:00 - 12:00';
-      const theme = document.getElementById('task-theme-select').value;
+      const title = document.getElementById('task-title-input')?.value.trim();
+      const subject = document.getElementById('task-subject-input')?.value.trim() || 'General';
+      const time = document.getElementById('task-time-input')?.value.trim() || '10:00 - 12:00';
+      const themeSelect = document.getElementById('task-theme-select');
+      const theme = themeSelect ? themeSelect.value : 'burgundy';
 
       if (!title) {
         alert('Please enter a session topic or chapter.');
@@ -1412,13 +1243,14 @@ document.addEventListener('DOMContentLoaded', () => {
   window.app = {
     setView,
     showToast,
+    toggleTheme,
+    applyTheme,
     openCalibrationModal,
     closeCalibrationModal,
-    openApiKeyModal,
     openAddTaskModal,
+    closeAddTaskModal,
     openFocusLockscreen,
-    closeFocusLockscreen,
-    runJevCalculation
+    closeFocusLockscreen
   };
 
   // Launch app
