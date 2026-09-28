@@ -1,38 +1,63 @@
-# Axiom - Study & Deathline Tracker
+# Axiom
 
-A specialized study-focused operating system and countdown planner tailored for serious competitive exams (**JEE Main & Advanced**, **NEET UG**, and **Class 12 Boards**), designed strictly around 4 user-provided UI paradigms with dual **Bright / Dark** theme modes.
+A minimalist study planner and deadline tracker for competitive exam preparation (JEE, NEET, and CBSE Class 12).
 
----
-
-## 📸 UI Blueprint Mappings
-
-| View / Feature | User Reference Image | Visual & Functional Details |
-| :--- | :--- | :--- |
-| **Today's Planner** | **Image 1** (`media_1790533708908.jpg`) | Minimalist warm stone palette (`#F4F1EA`) in Bright mode or Deep OLED in Dark mode, `"Good Morning, Student ☀️"`, real-time mechanical rolling odometer clock, pill filters (`Today`, `Tomorrow`, `All`), rich matte colored task cards (`burgundy`, `terracotta`, `indigo`, `emerald`), and timeline sprint slots. |
-| **Syllabus Matrix** | *Core Curriculum* | Complete chapter directory for **JEE**, **NEET**, and **Class 12 Boards** with 4-status mastery color coding: 🟢 Mastered, 🟡 Needs Revision, 🔴 Weak/Backlog, ⚪ Untouched. |
-| **Statistics & Telemetry** | **Image 3** (`media_1790533729954.jpg`) | Sleek dark UI (`#0D0F12`), predicted readiness score, dual charts (circular SVG donut gauge & subject split distribution), glowing neon velocity momentum wave graph, and preparation telemetry breakdown. |
-| **Deathline Lockscreen** | **Image 4** (`media_1790533841647.jpg`) | Brutalist minimalist screen (`#EBE8E1`), giant date number, 7-column dot matrix (`M T W T F S S`) dynamically calculated from **Start Date** to **Deathline**: solid black dots (`●`) for elapsed days, radiant orange dot (`🟠`) for Today, and hollow outline dots (`○`) for remaining days. Footer: *"LESS BUT BETTER"*. |
+Runs entirely in the browser with zero external dependencies and local offline storage (`localStorage`).
 
 ---
 
-## 🌓 Bright & Dark Theme Support
+## Features
 
-Axiom includes native instant theme switching between:
-*   ☀️ **Bright Mode**: Warm minimalist stone aesthetic with soft paper textures and clean typography.
-*   🌙 **Dark Mode**: High-contrast OLED dark styling optimized for late-night focus and eye comfort.
-
-Click the theme icon (`☀️` / `🌙`) in the top shell bar, status bar, or home screen to toggle themes anytime. Your preference is automatically persisted to `localStorage`.
+- **Daily Study Planner**: Schedule study blocks with custom subject tags and time slots, and toggle completion states.
+- **Syllabus Mastery Tracker**: Complete syllabus checklists for JEE, NEET, and Class 12 Science with 4-state status tracking (Mastered, Revision, Weak, Untouched).
+- **Diagnostics & Stats**: Deterministic readiness scoring, subject distribution gauges, and study velocity charts.
+- **Countdown Lockscreen**: A brutalist calendar dot matrix displaying elapsed and remaining days until exam deathline, paired with a focus stopwatch.
+- **Dual Themes**: Toggle between Warm Minimalist (Bright) and OLED Dark mode.
+- **100% Client-Side**: No accounts, external APIs, or trackers required. All data persists locally.
 
 ---
 
-## 🚀 How to Run Locally
+## Getting Started
 
-### Option 1: Run with Python Server (Recommended)
-In PowerShell or Terminal:
-```powershell
+### Option 1: Run with Python
+
+```bash
+git clone https://github.com/loserharsh/axiom.git
+cd axiom
 python server.py
 ```
-Open **[http://localhost:8085](http://localhost:8085)** in your browser.
 
-### Option 2: Direct Browser Open
-Double-click `index.html` in Chrome, Edge, Safari, or Firefox (works 100% offline).
+Open `http://localhost:8080` (or the port displayed in your terminal) in any browser.
+
+### Option 2: Direct Open
+
+Open `index.html` directly in Chrome, Firefox, Safari, or Edge.
+
+---
+
+## Project Structure
+
+```text
+axiom/
+├── index.html          # Main application shell and views
+├── styles.css          # Core styles, responsive layout & theme overrides
+├── app.js              # Application logic, router, and state management
+├── syllabus-data.js    # Curated chapter lists for JEE, NEET, and CBSE 12
+├── server.py           # Lightweight local static server
+└── manifest.json       # PWA web manifest
+```
+
+---
+
+## Tech Stack
+
+- **Frontend**: Vanilla HTML5, modern CSS3, ES6+ JavaScript.
+- **Storage**: Browser `localStorage`.
+- **Icons**: SVG & Lucide.
+- **Server**: Standard library Python `http.server`.
+
+---
+
+## License
+
+MIT
